@@ -19,16 +19,27 @@ int main(void)
 	// Usando el logger creado previamente
 	// Escribi: "Hola! Soy un log"
 
+	log_info(logger, "Hola! Soy un log");
+
+
+	
+
 
 	/* ---------------- ARCHIVOS DE CONFIGURACION ---------------- */
 
 	config = iniciar_config();
 
+
 	// Usando el config creado previamente, leemos los valores del config y los 
 	// dejamos en las variables 'ip', 'puerto' y 'valor'
 
+	valor = config_get_string_value(config, "CLAVE");
+	ip = config_get_string_value(config, "IP");
+	puerto = config_get_string_value(config, "PUERTO");
+
 	// Loggeamos el valor de config
 
+	log_info(logger, "Valor de Config es: %s", valor);
 
 	/* ---------------- LEER DE CONSOLA ---------------- */
 
@@ -43,6 +54,8 @@ int main(void)
 
 	// Enviamos al servidor el valor de CLAVE como mensaje
 
+	
+
 	// Armamos y enviamos el paquete
 	paquete(conexion);
 
@@ -54,14 +67,22 @@ int main(void)
 
 t_log* iniciar_logger(void)
 {
-	t_log* nuevo_logger;
+	t_log* nuevo_logger = log_create("tp0.log", "logger tp0", true, LOG_LEVEL_INFO);
+	if(nuevo_logger == NULL){
+		perror("Algo salió mal");
+		exit(EXIT_FAILURE);
+	}
 
 	return nuevo_logger;
 }
 
 t_config* iniciar_config(void)
 {
-	t_config* nuevo_config;
+	t_config* nuevo_config = config_create("/home/utnso/tp0/client/cliente.config");
+	if(nuevo_config == NULL){
+		perror("Algo salió mal con el config");
+		exit(EXIT_FAILURE);
+	}
 
 	return nuevo_config;
 }
@@ -71,13 +92,22 @@ void leer_consola(t_log* logger)
 	char* leido;
 
 	// La primera te la dejo de yapa
+	
 	leido = readline("> ");
+	log_info(logger, ">>> %s", leido);
 
 	// El resto, las vamos leyendo y logueando hasta recibir un string vacío
 
-
+	while (strcmp(leido, "")!=0)
+	{
+		free(leido);
+		leido = readline("> ");
+		log_info(logger, ">>> %s", leido);
+	}
+	
 	// ¡No te olvides de liberar las lineas antes de regresar!
 
+	free(leido);
 }
 
 void paquete(int conexion)
@@ -95,6 +125,8 @@ void paquete(int conexion)
 
 void terminar_programa(int conexion, t_log* logger, t_config* config)
 {
+	log_destroy(logger);
+	config_destroy(config);
 	/* Y por ultimo, hay que liberar lo que utilizamos (conexion, log y config) 
 	  con las funciones de las commons y del TP mencionadas en el enunciado */
 }
