@@ -7,9 +7,6 @@ int iniciar_servidor(void)
 	// Quitar esta línea cuando hayamos terminado de implementar la funcion
 	// assert(!"no implementado!");
 
-	//Hay que ver que hacemos con esto
-	int socket_servidor;
-
 	struct addrinfo hints, *servinfo;
 
 	memset(&hints, 0, sizeof(hints));
@@ -21,17 +18,17 @@ int iniciar_servidor(void)
 
 	// Creamos el socket de escucha del servidor
 
-	int fd_escucha = socket(servinfo->ai_family,
+	int socket_servidor= socket(servinfo->ai_family,
                          	servinfo->ai_socktype,
                          	servinfo->ai_protocol);
 
 	// Asociamos el socket a un puerto
 
-	bind(fd_escucha, servinfo->ai_addr, servinfo->ai_addrlen);
+	bind(socket_servidor, servinfo->ai_addr, servinfo->ai_addrlen);
 
 	// Escuchamos las conexiones entrantes
 
-	listen(fd_escucha, SOMAXCONN);
+	listen(socket_servidor, SOMAXCONN);
 
 	freeaddrinfo(servinfo);
 	log_trace(logger, "Listo para escuchar a mi cliente");
@@ -78,7 +75,7 @@ void recibir_mensaje(int socket_cliente)
 {
 	int size;
 	char* buffer = recibir_buffer(&size, socket_cliente);
-	log_info(logger, "Me llego el mensaje %s", buffer);
+	log_info(logger, "Me llego el mensaje: %s", buffer);
 	free(buffer);
 }
 
